@@ -20,7 +20,7 @@ var TFconfig = {
 
 var tweetTexts = [];
 
-function handleTweets(tweets){ 
+function handleTweets(tweets){
     var n = 0,
         element = $('#main'),
         html = '<ul>';
@@ -32,19 +32,26 @@ function handleTweets(tweets){
         dummyElement.html(tweet);
         var userLink = $('a[data-scribe="element:user_link"]', dummyElement),
             avatar = $('img[data-scribe="element:avatar"]', dummyElement);
-        // Edit the HTML
+
+        /* Edit the HTML */
         $('span[data-scribe="element:verified_badge"]', dummyElement).remove();
+        // Replace pointless span containing avatar with the avatar
         $('span:has(img)', dummyElement).replaceWith(avatar);
+        // Wrap display name & @username in a div to control display
         $('a[data-scribe="element:user_link"] > span', dummyElement).wrapAll('<div></div>');
+        // Remove URLs to keep a clean appearance
         $('p.tweet a[data-scribe="element:url"], p.tweet a[data-scribe=""]', dummyElement).remove();
+        // Unwrap spans within anchors so typed.js is smoother
         $('p.tweet a > span', dummyElement).contents().unwrap();
+        // Remove emoji
         $('p.tweet img', dummyElement).remove();
-        
+
+
         var tweetText = $('p.tweet', dummyElement)[0].innerHTML;
 //        console.log("tweet text", tweetText);
         tweetTexts.push(tweetText);
 //        $('p.tweet', dummyElement).wrap('<div class="typed-strings"></div>').parent();
-        
+
         html += '<li>' + dummyElement.html() + '</li>';
 //        var img = $('img[data-scribe="element:avatar"]'),
 //            imgSizeRegex = /(_bigger)(?=\.jpg|\.jpeg|\.png|\.gif)/;
@@ -52,9 +59,9 @@ function handleTweets(tweets){
         n++;
     }
     html += '</ul>';
-    
+
 //    console.log(tweetTexts);
-    element.html(html); 
+    element.html(html);
 }
 
 twitterFetcher.fetch(TFconfig);
@@ -64,7 +71,6 @@ function shuffle(array) {
     var currentIndex = array.length,
         temporaryValue,
         randomIndex;
-
     while (0 !== currentIndex) { // While there remain elements to shuffle
         // Pick a remaining element
         randomIndex = Math.floor(Math.random() * currentIndex);
@@ -76,7 +82,14 @@ function shuffle(array) {
     }
     return array;
 }
-    
+
+function getCurrentSlide() {
+    return $('ul li:first-of-type');
+}
+funciton getCurrentTweet() {
+    return $("ul li:first-of-type p.tweet");
+}
+
 
 $(window).load(function() {
     var slides = $('ul li'),
@@ -85,23 +98,23 @@ $(window).load(function() {
         index = 0,
         typeRate = -30,
         slideRate = 400;
-    
-    $('ul li:first-of-type').fadeIn(200);
+
+    getCurrentSlide().fadeIn(200);
     // https://github.com/mattboldt/typed.js/
-    $("ul li:first-of-type p.tweet").typed({
+    getCurrentTweet().typed({
         strings: [tweetTexts[index]],
         typeSpeed: typeRate,
         showCursor: false,
         contentType: 'html'
     });
     var intervalID = setInterval(function() {
-        $('ul li:first-of-type').slideUp(slideRate, function() {
+        getCurrentSlide().slideUp(slideRate, function() {
             console.log(index);
-            slides[index].remove();
+            getCurrentSlide().remove();
             index++;
-            $('ul li:first-of-type').slideDown(slideRate);
+            getCurrentSlide().slideDown(slideRate);
 //            console.log("foo", tweetTexts[index]);
-            $("ul li:first-of-type p.tweet").typed({
+            getCurrentTweet().typed({
                 strings: [tweetTexts[index]],
                 typeSpeed: typeRate,
                 showCursor: false,
@@ -113,21 +126,21 @@ $(window).load(function() {
             }
         });
     }, timer);
-    
+
     /*function transition() {
         $('ul li:first-of-type div.media').fadeIn
-        
+
     }*/
-    
-    
+
+
     /*$('#play-pause').click(function() {
         if (this === "Pause") {
             clearInterval(intervalID);
             this.html('Play');
         }
-        
+
     })
-    
+
         function sleep(time) {
         var start = new Date().getTime();
         for (var i = 0; i < 1e7; i++) {
@@ -136,6 +149,5 @@ $(window).load(function() {
             }
         }
     }*/
-    
-});
 
+});
